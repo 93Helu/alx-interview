@@ -1,64 +1,37 @@
 #!/usr/bin/python3
-"""
-0-stats
-"""
+'''a script that reads stdin line by line and computes metrics'''
+
+
 import sys
 
+cache = {'200': 0, '301': 0, '400': 0, '401': 0,
+         '403': 0, '404': 0, '405': 0, '500': 0}
+total_size = 0
+counter = 0
 
-def parse_line(line):
-    """
-    Parses a log line and extracts status code and file size
-    """
-    parts = line.split()
-    if len(parts) != 9:
-        return None, None
-    try:
-        sts_code = int(parts[-2])
-        file_size = int(parts[-1])
-        return sts_code, file_size
-    except ValueError:
-        return None, None
+try:
+    for line in sys.stdin:
+        line_list = line.split(" ")
+        if len(line_list) > 4:
+            code = line_list[-2]
+            size = int(line_list[-1])
+            if code in cache.keys():
+                cache[code] += 1
+            total_size += size
+            counter += 1
 
+        if counter == 10:
+            counter = 0
+            print('File size: {}'.format(total_size))
+            for key, value in sorted(cache.items()):
+                if value != 0:
+                    print('{}: {}'.format(key, value))
 
-def print_stats(total_size, sts_codes):
-    """
-    Prints statistics for status codes and total file size
-    """
-    print("File size: {}".format(total_size))
-    for sts in sorted(sts_codes.keys()):
-        count = sts_codes[sts]
-        if count != 0:
-            print("{}: {}".format(sts, count))
+except Exception as err:
+    pass
 
-
-def main():
-    # Dictionary to store status code counts
-    sts_codes = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0,
-                 404: 0, 405: 0, 500: 0}
-    line_count = 0
-    total_size = 0
-
-    try:
-        for line in sys.stdin:
-            # Parse the line and extract status code and file size
-            sts_code, file_size = parse_line(line)
-            if sts_code is not None and file_size is not None:
-                total_size += file_size
-                if sts_code in sts_codes:
-                    sts_codes[sts_code] += 1
-
-                line_count += 1
-                # Print stats every 10 lines
-                if line_count % 10 == 0:
-                    print_stats(total_size, sts_codes)
-        # Print final stats
-        print_stats(total_size, sts_codes)
-
-    except KeyboardInterrupt:
-        # Print stats in case of interruption
-        print_stats(total_size, sts_codes)
-        raise
-
-
-if __name__ == "__main__":
-    main()
+finally:
+    print('File size: {}'.format(total_size))
+    for key, value in sorted(cache.items()):
+        if value != 0:
+            print('{}: {}'.format(key, value))
