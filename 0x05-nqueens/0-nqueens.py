@@ -1,73 +1,83 @@
 #!/usr/bin/python3
-""" N QUEENS ALGORITHM WITH BACKTRACKING (RECURSION INSIDE LOOP) """
-import sys
+"""contains the nqueens code"""
+
+from sys import argv, exit
 
 
-class NQueen:
-    """ Class for solving N Queen Problem """
+def queens(N, i, j, my_list):
+    """
+    place queens recursively
+    :param N: chessboard dimension
+    :param i: row
+    :param j: column
+    :param my_list:
+    :return:n queens
+    """
+    while i < N:
+        if validation(i, j, my_list):
+            my_list.append([i, j])
+            if j == N - 1:
+                print(my_list)
+                my_list.pop()
+            else:
+                queens(N, 0, j + 1, my_list)
 
-    def __init__(self, n):
-        """ Global Variables """
-        self.n = n
-        self.x = [0 for i in range(n + 1)]
-        self.res = []
+        i += 1
 
-    def place(self, k, i):
-        """ Checks if k Queen can be placed in i column (True)
-        or if the are attacking queens in row or diagonal (False)
-        """
+    if len(my_list) > 0:
+        my_list.pop()
 
-        # j checks from 1 to k - 1 (Up to previous queen)
-        for j in range(1, k):
-            # There is already a queen in column
-            # or a queen in same diagonal
-            if self.x[j] == i or \
-               abs(self.x[j] - i) == abs(j - k):
-                return 0
-        return 1
-
-    def nQueen(self, k):
-        """ Tries to place every queen in the board
-        Args:
-        k: starting queen from which to evaluate (should be 1)
-        """
-        # i goes from column 1 to column n (1st column is 1st index)
-        for i in range(1, self.n + 1):
-            if self.place(k, i):
-                # Queen can be placed in i column
-                self.x[k] = i
-                if k == self.n:
-                    # Placed all 4 Queens (A solution was found)
-                    solution = []
-                    for i in range(1, self.n + 1):
-                        solution.append([i - 1, self.x[i] - 1])
-                    self.res.append(solution)
-                else:
-                    # Need to place more Queens
-                    self.nQueen(k + 1)
-        return self.res
+    return
 
 
-# Main
+def validation(i, j, my_list):
+    """
+    check if the position is valid
+    :param i: rows
+    :param j: columns
+    :param my_list: previously tested positions
+    :return: TRUE if valid, FALSE if not
+    """
+    rows = []
+    cols = []
+    diag1 = []
+    diag2 = []
 
-if len(sys.argv) != 2:
-    print("Usage: nqueens N")
-    sys.exit(1)
+    for elem in my_list:
+        # rows and columns
+        rows.append(elem[0])
+        cols.append(elem[1])
 
-N = sys.argv[1]
+        # diagonals
+        diag1.append(elem[0] + elem[1])
+        diag2.append(elem[1] - elem[0])
 
-try:
-    N = int(N)
-except ValueError:
-    print("N must be a number")
-    sys.exit(1)
+    if i in rows or j in cols:
+        return False
 
-if N < 4:
-    print("N must be at least 4")
-    sys.exit(1)
+    if i + j in diag1 or j - i in diag2:
+        return False
 
-queen = NQueen(N)
-res = queen.nQueen(1)
+    return True
 
-for i in res:
-    print(i)
+
+if __name__ == "__main__":
+
+    length = len(argv)
+    if length != 2:
+        print("Usage: nqueens N")
+        exit(1)
+
+    if argv[1].isdigit() is False:
+        print("N must be a number")
+        exit(1)
+
+    N = int(argv[1])
+
+    if N < 4:
+        print("N must be at least 4")
+        exit(1)
+
+    positions = []
+
+    queens(N, 0, 0, positions)
