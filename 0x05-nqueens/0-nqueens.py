@@ -4,6 +4,13 @@ import sys
 
 class NQueen:
     """ Class for solving N Queen Problem """
+def solve(row, column):
+    solver = [[]]
+    for q in range(row):
+        solver = place_queen(q, column, solver)
+    return solver
+
+
 def place_queen(q, column, prev_solver):
     solver_queen = []
     for array in prev_solver:
@@ -11,12 +18,7 @@ def place_queen(q, column, prev_solver):
             if is_safe(q, x, array):
                 solver_queen.append(array + [x])
     return solver_queen
-  
-def solve(row, column):
-    solver = [[]]
-    for q in range(row):
-        solver = place_queen(q, column, solver)
-    return solver
+
 
 def is_safe(q, x, array):
     if x in array:
