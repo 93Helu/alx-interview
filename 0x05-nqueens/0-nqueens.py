@@ -2,62 +2,72 @@
 """ N QUEENS ALGORITHM WITH BACKTRACKING (RECURSION INSIDE LOOP) """
 import sys
 
+
 class NQueen:
     """ Class for solving N Queen Problem """
-def is_safe(board, row, col, N):
-    for i in range(col):
-        if board[row][i] == 1:
-            return False
-    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-    for i, j in zip(range(row, N, 1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-    return True
+
+    def __init__(self, n):
+        """ Global Variables """
+        self.n = n
+        self.x = [0 for i in range(n + 1)]
+        self.res = []
+
+    def place(self, k, i):
+        """ Checks if k Queen can be placed in i column (True)
+        or if the are attacking queens in row or diagonal (False)
+        """
+
+        # j checks from 1 to k - 1 (Up to previous queen)
+        for j in range(1, k):
+            # There is already a queen in column
+            # or a queen in same diagonal
+            if self.x[j] == i or \
+               abs(self.x[j] - i) == abs(j - k):
+                return 0
+        return 1
+
+    def nQueen(self, k):
+        """ Tries to place every queen in the board
+        Args:
+        k: starting queen from which to evaluate (should be 1)
+        """
+        # i goes from column 1 to column n (1st column is 1st index)
+        for i in range(1, self.n + 1):
+            if self.place(k, i):
+                # Queen can be placed in i column
+                self.x[k] = i
+                if k == self.n:
+                    # Placed all 4 Queens (A solution was found)
+                    solution = []
+                    for i in range(1, self.n + 1):
+                        solution.append([i - 1, self.x[i] - 1])
+                    self.res.append(solution)
+                else:
+                    # Need to place more Queens
+                    self.nQueen(k + 1)
+        return self.res
 
 
-def solve_nqueens(N):
-    solutions = []
+# Main
 
-    def solve_util(board, col):
-        nonlocal solutions
-        if col >= N:
-            solutions.append([(r, c.index(1))
-                             for r, c in enumerate(board)])
-            return
-        for i in range(N):
-            if is_safe(board, i, col, N):
-                board[i][col] = 1
-                solve_util(board, col + 1)
-                board[i][col] = 0
-    initial_board = []
-    for _ in range(N):
-        initial_board.append([0] * N)
-    solve_util(initial_board, 0)
-    return solutions
+if len(sys.argv) != 2:
+    print("Usage: nqueens N")
+    sys.exit(1)
 
+N = sys.argv[1]
 
-def print_solutions(solutions):
-    for solution in solutions:
-        formatted_solution = [[r, c] for r, c in solution]
-        print(formatted_solution)
+try:
+    N = int(N)
+except ValueError:
+    print("N must be a number")
+    sys.exit(1)
 
+if N < 4:
+    print("N must be at least 4")
+    sys.exit(1)
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: nqueens N")
-        sys.exit(1)
+queen = NQueen(N)
+res = queen.nQueen(1)
 
-    try:
-        N = int(sys.argv[1])
-    except ValueError:
-        print("N must be a number")
-        sys.exit(1)
-
-    if N < 4:
-        print("N must be at least 4")
-        sys.exit(1)
-
-    solutions = solve_nqueens(N)
-    print_solutions(solutions)
+for i in res:
+    print(i)
